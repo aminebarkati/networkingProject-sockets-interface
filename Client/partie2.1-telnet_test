@@ -1,0 +1,34 @@
+-------------------------------------------------
+◄ 23s ◎ telnet localhost 8000
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+HEAD /testfile.txt HTTP/1.1            
+Host: localhost
+
+HTTP/1.1 200 OK
+Host: localhost
+Date: Sat, 25 Apr 2026 12:55:07 GMT
+Connection: close
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 24
+
+Connection closed by foreign host.
+-------------------------------------------------
+◄ 10s ◎ telnet localhost 8000
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+GET /testfile.txt HTTP/1.1
+Host: localhost
+
+HTTP/1.1 200 OK
+Host: localhost
+Date: Sat, 25 Apr 2026 12:50:52 GMT
+Connection: close
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 24
+
+TEST FILE :
+HELLO TELNET
+Connection closed by foreign host.
