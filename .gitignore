@@ -1,0 +1,35 @@
+# Build artifacts
+*.o
+*.obj
+*.out
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Debug/profiling artifacts
+*.dSYM/
+*.gcda
+*.gcno
+*.gcov
+*.prof
+*.gprof
+core
+
+# Common local binaries
+server/server_tcp
+server/server_udp
+server/server_concurrent
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

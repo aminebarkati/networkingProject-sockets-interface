@@ -19,10 +19,12 @@
 
 static int make_server(int port)
 {
+    /* One listening TCP socket per service/port. */
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) { perror("socket"); exit(1); }
 
     int opt = 1;
+    /* Avoid bind errors after quick restart. */
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     struct sockaddr_in addr = {
@@ -44,11 +46,13 @@ static int make_server(int port)
 static void service1(int client_fd)
 {
     char buf[256];
+    /* Optional initial client message (hello/request). */
     int n = recv(client_fd, buf, sizeof(buf) - 1, 0);
     if (n <= 0) return;
     buf[n] = '\0';
     printf("[S1] Client dit : %s", buf);
 
+    /* Stream current time every second for 60 seconds. */
     for (int i = 0; i < 60; i++) {
         time_t t = time(NULL);
         char msg[64];
@@ -63,6 +67,7 @@ static void service1(int client_fd)
 static void service2(int client_fd)
 {
     char result[256] = {0};
+    /* Ask shell for process count (simple demo approach). */
     FILE *f = popen("ps aux | wc -l", "r");
     if (f) {
         fgets(result, sizeof(result), f);
@@ -76,6 +81,7 @@ static void service2(int client_fd)
 /* Service 3 — transfert de fichier (port 8082) */
 static void service3(int client_fd)
 {
+    /* Open a shared text file and stream it to the client. */
     FILE *f = fopen(FILE_PATH, "r");
     if (!f) {
         const char *err = "Fichier introuvable\n";
@@ -84,6 +90,7 @@ static void service3(int client_fd)
     }
     char buf[1024];
     size_t n;
+    /* fread gets bytes from disk, send pushes bytes to socket. */
     while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
         send(client_fd, buf, n, 0);
     fclose(f);
@@ -115,6 +122,7 @@ static void run_listener(int server_fd,
         pid_t pid = fork();
         if (pid < 0) { perror("fork"); close(client_fd); continue; }
 
+        /* Child process: handles one client only, then exits. */
         if (pid == 0) {         /* child — handles exactly one client */
             close(server_fd);
             handler(client_fd);
@@ -122,6 +130,7 @@ static void run_listener(int server_fd,
             exit(0);
         }
 
+        /* Parent keeps listening for more clients. */
         close(client_fd);       /* parent — back to accept() */
     }
 }
@@ -130,12 +139,14 @@ static void run_listener(int server_fd,
 
 int main(void)
 {
+    /* Create one listening socket per service port. */
     int fd1 = make_server(PORT_S1);
     int fd2 = make_server(PORT_S2);
     int fd3 = make_server(PORT_S3);
 
     /* listener for service 2 */
     if (fork() == 0) {
+        /* This child only serves Service 2, so close unrelated sockets. */
         close(fd1); close(fd3);
         run_listener(fd2, service2, "Service2");
         exit(0);
@@ -143,6 +154,7 @@ int main(void)
 
     /* listener for service 3 */
     if (fork() == 0) {
+        /* This child only serves Service 3. */
         close(fd1); close(fd2);
         run_listener(fd3, service3, "Service3");
         exit(0);
