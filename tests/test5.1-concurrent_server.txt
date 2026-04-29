@@ -1,0 +1,151 @@
+================================THE SERVER===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/server$ cd ~/Documents/projects/networkingProject-sockets-interface/server
+./server_concurrent
+[Service1] en écoute...
+[Service2] en écoute...
+[Service3] en écoute...
+[Service1] connexion de 127.0.0.1:33748
+[S1] Client dit : Bonjour
+[Service1] connexion de 127.0.0.1:40718
+[S1] Client dit : Bonjour
+
+================================THE CLIENT===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/Client$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./client_service1
+=== Client Service 1 — Heure (port 8080) ===
+
+[21:50:06] Connexion (PID=146525)
+Il est 21:50:06 !
+Il est 21:50:07 !
+Il est 21:50:08 !
+Il est 21:50:09 !
+Il est 21:50:10 !
+Il est 21:50:11 !
+Il est 21:50:12 !
+Il est 21:50:13 !
+Il est 21:50:14 !
+Il est 21:50:15 !
+Il est 21:50:16 !
+Il est 21:50:17 !
+Il est 21:50:18 !
+Il est 21:50:19 !
+Il est 21:50:20 !
+Il est 21:50:21 !
+Il est 21:50:22 !
+Il est 21:50:23 !
+Il est 21:50:24 !
+Il est 21:50:25 !
+Il est 21:50:26 !
+Il est 21:50:27 !
+Il est 21:50:28 !
+Il est 21:50:29 !
+Il est 21:50:30 !
+Il est 21:50:31 !
+Il est 21:50:32 !
+Il est 21:50:33 !
+Il est 21:50:34 !
+Il est 21:50:35 !
+Il est 21:50:36 !
+Il est 21:50:37 !
+Il est 21:50:38 !
+Il est 21:50:39 !
+Il est 21:50:40 !
+Il est 21:50:41 !
+Il est 21:50:42 !
+Il est 21:50:43 !
+Il est 21:50:44 !
+Il est 21:50:45 !
+Il est 21:50:46 !
+Il est 21:50:47 !
+Il est 21:50:48 !
+Il est 21:50:49 !
+Il est 21:50:50 !
+Il est 21:50:51 !
+Il est 21:50:52 !
+Il est 21:50:53 !
+Il est 21:50:54 !
+Il est 21:50:55 !
+Il est 21:50:56 !
+Il est 21:50:57 !
+Il est 21:50:58 !
+Il est 21:50:59 !
+Il est 21:51:00 !
+Il est 21:51:01 !
+Il est 21:51:02 !
+Il est 21:51:03 !
+Il est 21:51:04 !
+Il est 21:51:05 !
+Au revoir
+[21:51:06] Déconnexion (PID=146525)
+recv() appelé 61 fois
+
+///////////////////\\\\\\\\\\\\\\\\\\
+
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/Client$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./client_service1
+=== Client Service 1 — Heure (port 8080) ===
+
+[21:50:14] Connexion (PID=146585)
+Il est 21:50:14 !
+Il est 21:50:15 !
+Il est 21:50:16 !
+Il est 21:50:17 !
+Il est 21:50:18 !
+Il est 21:50:19 !
+Il est 21:50:20 !
+Il est 21:50:21 !
+Il est 21:50:22 !
+Il est 21:50:23 !
+Il est 21:50:24 !
+Il est 21:50:25 !
+Il est 21:50:26 !
+Il est 21:50:27 !
+Il est 21:50:28 !
+Il est 21:50:29 !
+Il est 21:50:30 !
+Il est 21:50:31 !
+Il est 21:50:32 !
+Il est 21:50:33 !
+Il est 21:50:34 !
+Il est 21:50:35 !
+Il est 21:50:36 !
+Il est 21:50:37 !
+Il est 21:50:38 !
+Il est 21:50:39 !
+Il est 21:50:40 !
+Il est 21:50:41 !
+Il est 21:50:42 !
+Il est 21:50:43 !
+Il est 21:50:44 !
+Il est 21:50:45 !
+Il est 21:50:46 !
+Il est 21:50:47 !
+Il est 21:50:48 !
+Il est 21:50:49 !
+Il est 21:50:50 !
+Il est 21:50:51 !
+Il est 21:50:52 !
+Il est 21:50:53 !
+Il est 21:50:54 !
+Il est 21:50:55 !
+Il est 21:50:56 !
+Il est 21:50:57 !
+Il est 21:50:58 !
+Il est 21:50:59 !
+Il est 21:51:00 !
+Il est 21:51:01 !
+Il est 21:51:02 !
+Il est 21:51:03 !
+Il est 21:51:04 !
+Il est 21:51:05 !
+Il est 21:51:06 !
+Il est 21:51:07 !
+Il est 21:51:08 !
+Il est 21:51:09 !
+Il est 21:51:10 !
+Il est 21:51:11 !
+Il est 21:51:12 !
+Il est 21:51:13 !
+Au revoir
+[21:51:14] Déconnexion (PID=146585)
+recv() appelé 61 fois

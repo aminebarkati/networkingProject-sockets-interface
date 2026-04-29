@@ -175,7 +175,7 @@ cd ~/Documents/projects/networkingProject-sockets-interface/server
 ./server_concurrent
 ```
 
-### 5b. Deux clients simultanés sur le service 1
+### 5b. Deux clients simultanés sur le même service (preuve de concurrence)
 
 **Terminal 3 :**
 ```bash
@@ -185,18 +185,27 @@ cd ~/Documents/projects/networkingProject-sockets-interface/Client
 **Immédiatement** (sans attendre la fin), dans **Terminal 4 :**
 ```bash
 cd ~/Documents/projects/networkingProject-sockets-interface/Client
-./client_service2
+./client_service1
 ```
 
-> **À noter :** la sortie complète des deux terminaux avec les timestamps `[HH:MM:SS]`
-> → Si les timestamps de service2 apparaissent **pendant** que service1 tourne, la concurrence est prouvée.
+Les deux se connectent au **même port 8080**. Si le serveur est concurrent :
+- Les deux affichent l'heure **en même temps** (timestamps qui se chevauchent)
+- Les deux finissent à ~60 secondes d'écart de leur démarrage respectif
 
-### 5c. Script de test parallèle
+Si le serveur était séquentiel, le second client attendrait que le premier ait fini ses 60 secondes avant de recevoir quoi que ce soit.
+
+> **À noter :** la sortie complète des deux terminaux avec les timestamps `[HH:MM:SS] Connexion` et `[HH:MM:SS] Déconnexion`
+> → Les plages de temps doivent se **chevaucher** pour prouver la concurrence.
+
+### 5c. Script de test parallèle (3 services différents en parallèle)
 
 **Terminal 3 :**
 ```bash
 cd ~/Documents/projects/networkingProject-sockets-interface/Client
 ./test_parallel.sh
 ```
+
+Ce test lance simultanément client_service1 (60s), client_service2 (instantané) et client_service3 (instantané).
+Si service2 et service3 répondent **pendant** que service1 tourne encore → les 3 services sont bien indépendants.
 
 > **À noter :** toute la sortie du script
