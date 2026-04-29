@@ -40,7 +40,7 @@
 #include <netinet/in.h>  /* struct sockaddr_in, htons, INADDR_ANY             */
 #include <arpa/inet.h>   /* inet_ntoa                                         */
 
-#define PORT 8080   /* port d'écoute du serveur                              */
+#define PORT 8081   /* port d'écoute du serveur                              */
 
 int main(void)
 {
@@ -85,7 +85,7 @@ int main(void)
                ntohs(client_addr.sin_port), buf);
 
         /* Envoie l'heure 60 fois au même client                            */
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 10; i++) {
             time_t t = time(NULL);
             char msg[64];
             strftime(msg, sizeof(msg), "Il est %H:%M:%S !\n", localtime(&t));
