@@ -110,6 +110,23 @@ main()
 
 **Limitation :** un seul client à la fois. Le deuxième client attend dans la file `listen()` pendant les 60 secondes.
 
+### Servir plusieurs clients — file d'attente et saturation (BACKLOG)
+
+**Peut-on servir plusieurs clients simultanément ?**  
+Non. Le serveur séquentiel bloque 60 secondes dans `handle_client()` avant de retourner à `accept()`. Pendant ce temps, les autres clients attendent dans la **file de connexions pendantes** de `listen()` dont la taille est limitée par `BACKLOG = 10`.
+
+```
+Client 1 ──────────────── servi (60s) ──────────────────>
+Client 2               [file listen()] ─── attend ───────> servi à t+60s
+Client 3               [file listen()] ─── attend ───────>           servi à t+120s
+...
+Client 10              [file listen()] ─── attend ───────>
+Client 11              ECONNREFUSED ← file pleine, refusé immédiatement
+```
+
+**Que se passe-t-il si on lance un client supplémentaire quand la file est pleine ?**  
+Le noyau refuse la connexion directement au niveau TCP sans que le programme serveur n'intervienne. Le client reçoit l'erreur **`ECONNREFUSED`** et son `connect()` échoue immédiatement. Cette limitation est la motivation principale de la partie 5 : le serveur concurrent via `fork()` vide la file quasi instantanément en déléguant chaque client à un fils, rendant la saturation de la file pratiquement impossible.
+
 ### Test 2 — TCP avec sleep(1)
 
 **Serveur :** `./server_tcp` (avec `sleep(1)` actif)
@@ -189,6 +206,33 @@ Serveur                          Client
 
 **Qui ferme la connexion TCP ?** Le **serveur** : après l'envoi de "Au revoir", `close(client_fd)` envoie un `FIN`.
 
+### Que se passe-t-il si on débranche le câble réseau ?
+
+Ce test n'a pas pu être réalisé en loopback (même machine, pas de câble physique), mais le comportement TCP est le suivant :
+
+**Câble débranché :**
+
+```
+Programme              Noyau (kernel)               Réseau
+    |                       |                          |
+    | send("Il est...")      |                          |
+    |──────────────────────>|                          |
+    |                       |──── segment TCP ─────────X  (perdu)
+    |                       |  pas d'ACK... attend     |
+    |                       |──── retransmission ──────X  (perdu)
+    |                       |  attend 2× plus longtemps|
+    |                       |──── retransmission ──────X  (perdu)
+    |                       |       ...                |
+    |  ETIMEDOUT (~15 min)  |                          |
+    |<──────────────────────|                          |
+```
+
+Le programme ne voit rien pendant plusieurs minutes — `send()` ne retourne pas d'erreur immédiatement. Le noyau garde une copie de chaque segment dans son **buffer de retransmission** et les réenvoie périodiquement en doublant le délai à chaque échec (200ms → 400ms → 800ms → ...). C'est le kernel qui gère cela, pas le programme. Après environ 15 minutes sans ACK, `send()` retourne finalement `-1` avec l'erreur `ETIMEDOUT` ou `EPIPE`.
+
+**Câble débranché puis rebranché rapidement :**
+
+Si le câble est rebranché avant que les retransmissions n'atteignent leur limite, TCP reprend automatiquement là où il s'était arrêté. La connexion survit sans interruption visible pour le programme — c'est précisément la garantie de fiabilité de TCP.
+
 ---
 
 ## Partie 4 — Serveur UDP (`server_udp.c`)
@@ -250,6 +294,24 @@ Client                              Serveur
 
 **Pourquoi `recvfrom()` et `sendto()` ?**  
 En UDP il n'y a pas de connexion persistante. Chaque datagramme est indépendant. `recvfrom()` remplit la structure `client_addr` avec l'IP+port de l'expéditeur, et `sendto()` l'utilise pour chaque réponse. Sans cette adresse, le serveur ne saurait pas où envoyer la réponse.
+
+### Que se passe-t-il si on débranche le câble réseau en UDP ?
+
+**Câble débranché :**  
+Les datagrammes sont **perdus silencieusement**. Contrairement à TCP, UDP ne dispose d'aucun mécanisme de retransmission. Le `sendto()` retourne immédiatement sans erreur — le programme pense avoir envoyé, mais les données n'arrivent jamais. Il n'y a aucun timeout, aucune notification d'échec.
+
+**Câble rebranché rapidement :**  
+Les datagrammes perdus pendant la coupure sont **définitivement perdus** — UDP ne les retransmet pas. L'échange reprend normalement pour les suivants, mais avec un nombre de messages manquants égal à la durée de la coupure en secondes (1 message par seconde).
+
+C'est la différence fondamentale avec TCP : UDP sacrifie la fiabilité pour la simplicité et la rapidité.
+
+### Peut-on servir plusieurs clients simultanément en UDP ?
+
+Non. Le serveur UDP est séquentiel : après avoir reçu le "Bonjour" d'un client, il entre dans une boucle de 60 `sendto()` avec `sleep(1)`. Pendant ces 60 secondes, le `recvfrom()` n'est pas appelé, donc tout datagramme d'un deuxième client est **bloqué dans le buffer de réception du noyau**.
+
+Il n'y a pas de notion de BACKLOG en UDP (pas de `listen()`), mais la taille du buffer réseau impose une limite similaire. Si trop de datagrammes arrivent sans être lus, les plus anciens sont écrasés.
+
+Contrairement à TCP où le client reçoit `ECONNREFUSED` immédiatement quand la file est pleine, en UDP le deuxième client **ne reçoit aucun signal d'attente** — ses datagrammes sont simplement mis en attente ou perdus sans notification.
 
 ---
 
