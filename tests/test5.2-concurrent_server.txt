@@ -1,0 +1,198 @@
+================================THE SERVER===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/server$ cd ~/Documents/projects/networkingProject-sockets-interface/server
+./server_concurrent
+[Service1] en écoute...
+[Service2] en écoute...
+[Service3] en écoute...
+[Service1] connexion de 127.0.0.1:47778
+[S1] Client dit : Bonjour
+[Service2] connexion de 127.0.0.1:39618
+[Service1] connexion de 127.0.0.1:35528
+[Service3] connexion de 127.0.0.1:60880
+[S1] Client dit : Bonjour
+[Service2] connexion de 127.0.0.1:32832
+
+================================THE CLIENT===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/Client$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./client_service1
+=== Client Service 1 — Heure (port 8080) ===
+
+[21:39:53] Connexion (PID=142845)
+Il est 21:39:53 !
+Il est 21:39:54 !
+Il est 21:39:55 !
+Il est 21:39:56 !
+Il est 21:39:57 !
+Il est 21:39:58 !
+Il est 21:39:59 !
+Il est 21:40:00 !
+Il est 21:40:01 !
+Il est 21:40:02 !
+Il est 21:40:03 !
+Il est 21:40:04 !
+Il est 21:40:05 !
+Il est 21:40:06 !
+Il est 21:40:07 !
+Il est 21:40:08 !
+Il est 21:40:09 !
+Il est 21:40:10 !
+Il est 21:40:11 !
+Il est 21:40:12 !
+Il est 21:40:13 !
+Il est 21:40:14 !
+Il est 21:40:15 !
+Il est 21:40:16 !
+Il est 21:40:17 !
+Il est 21:40:18 !
+Il est 21:40:19 !
+Il est 21:40:20 !
+Il est 21:40:21 !
+Il est 21:40:22 !
+Il est 21:40:23 !
+Il est 21:40:24 !
+Il est 21:40:25 !
+Il est 21:40:26 !
+Il est 21:40:27 !
+Il est 21:40:28 !
+Il est 21:40:29 !
+Il est 21:40:30 !
+Il est 21:40:31 !
+Il est 21:40:32 !
+Il est 21:40:33 !
+Il est 21:40:34 !
+Il est 21:40:35 !
+Il est 21:40:36 !
+Il est 21:40:37 !
+Il est 21:40:38 !
+Il est 21:40:39 !
+Il est 21:40:40 !
+Il est 21:40:41 !
+Il est 21:40:42 !
+Il est 21:40:43 !
+Il est 21:40:44 !
+Il est 21:40:45 !
+Il est 21:40:46 !
+Il est 21:40:47 !
+Il est 21:40:48 !
+Il est 21:40:49 !
+Il est 21:40:50 !
+Il est 21:40:51 !
+Il est 21:40:52 !
+Au revoir
+[21:40:53] Déconnexion (PID=142845)
+recv() appelé 61 fois
+
+////////////////\\\\\\\\\\\\\\\
+
+dragoula@dragoula-cave:~$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./client_service2
+=== Client Service 2 — Processus (port 8081) ===
+
+[21:39:59] Connexion (PID=142881)
+--- Réponse du serveur ---
+Nombre de processus : 408
+--- Fin ---
+[21:39:59] Déconnexion (PID=142881)
+
+////////////////\\\\\\\\\\\\\\\
+
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/Client$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./test_parallel.sh
+=== Lancement des 3 clients en parallèle ===
+
+[PID=143190] client_service1 lancé
+[PID=143191] client_service2 lancé
+[PID=143192] client_service3 lancé
+
+Attente de la fin de tous les clients...
+
+=== Résultats ===
+
+--- Service 1 (heure) ---
+=== Client Service 1 — Heure (port 8080) ===
+
+[21:40:55] Connexion (PID=143190)
+Il est 21:40:55 !
+Il est 21:40:56 !
+Il est 21:40:57 !
+Il est 21:40:58 !
+Il est 21:40:59 !
+Il est 21:41:00 !
+Il est 21:41:01 !
+Il est 21:41:02 !
+Il est 21:41:03 !
+Il est 21:41:04 !
+Il est 21:41:05 !
+Il est 21:41:06 !
+Il est 21:41:07 !
+Il est 21:41:08 !
+Il est 21:41:09 !
+Il est 21:41:10 !
+Il est 21:41:11 !
+Il est 21:41:12 !
+Il est 21:41:13 !
+Il est 21:41:14 !
+Il est 21:41:15 !
+Il est 21:41:16 !
+Il est 21:41:17 !
+Il est 21:41:18 !
+Il est 21:41:19 !
+Il est 21:41:20 !
+Il est 21:41:21 !
+Il est 21:41:22 !
+Il est 21:41:23 !
+Il est 21:41:24 !
+Il est 21:41:25 !
+Il est 21:41:26 !
+Il est 21:41:28 !
+Il est 21:41:29 !
+Il est 21:41:30 !
+Il est 21:41:31 !
+Il est 21:41:32 !
+Il est 21:41:33 !
+Il est 21:41:34 !
+Il est 21:41:35 !
+Il est 21:41:36 !
+Il est 21:41:37 !
+Il est 21:41:38 !
+Il est 21:41:39 !
+Il est 21:41:40 !
+Il est 21:41:41 !
+Il est 21:41:42 !
+Il est 21:41:43 !
+Il est 21:41:44 !
+Il est 21:41:45 !
+Il est 21:41:46 !
+Il est 21:41:47 !
+Il est 21:41:48 !
+Il est 21:41:49 !
+Il est 21:41:50 !
+Il est 21:41:51 !
+Il est 21:41:52 !
+Il est 21:41:53 !
+Il est 21:41:54 !
+Il est 21:41:55 !
+Au revoir
+[21:41:56] Déconnexion (PID=143190)
+recv() appelé 61 fois
+
+--- Service 2 (processus) ---
+=== Client Service 2 — Processus (port 8081) ===
+
+[21:40:55] Connexion (PID=143191)
+--- Réponse du serveur ---
+Nombre de processus : 410
+--- Fin ---
+[21:40:56] Déconnexion (PID=143191)
+
+--- Service 3 (fichier) ---
+=== Client Service 3 — Transfert fichier (port 8082) ===
+
+[21:40:55] Connexion (PID=143192)
+Réception du fichier...
+[OK] 128 octets reçus → sauvegardé dans "received_file.txt"
+[21:40:55] Déconnexion (PID=143192)
+
+=== Test terminé ===
+Vérifiez que les timestamps de Service1 et Service2/3 se chevauchent.
+
