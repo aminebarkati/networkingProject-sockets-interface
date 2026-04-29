@@ -12,6 +12,27 @@
 
 On utilise `python3 -m http.server 8000` comme serveur HTTP/1.0 et `telnet 127.0.0.1 8000` comme client manuel.
 
+### Comment s'établit la connexion TCP ?
+
+La connexion TCP s'établit via le **3-way handshake** en 3 étapes avant tout échange HTTP :
+
+1. Le **client** envoie un segment `SYN` pour initier la connexion
+2. Le **serveur** répond par un `SYN-ACK` pour confirmer
+3. Le **client** envoie un `ACK` pour valider
+
+Ce n'est qu'après ces 3 échanges que les données applicatives (la requête HTTP) peuvent circuler. HTTP n'a pas de mécanisme de connexion propre — il utilise simplement la connexion TCP déjà établie.
+
+### Chronogramme complet TCP/HTTP
+
+![Chronogramme TCP/HTTP — 3-way handshake, échange HTTP, fermeture](Client/chronogramme_tcp_http.svg)
+
+### Quels ports sont utilisés ?
+
+| Côté    | Port                                 | Type                                              |
+|---------|--------------------------------------|---------------------------------------------------|
+| Serveur | **8000** (ou 80 en production)       | Port fixe, connu à l'avance                       |
+| Client  | **port éphémère** (ex. 47986, 48420) | Assigné aléatoirement par le kernel (49152–65535) |
+
 ### Test 1a — Requête HEAD
 
 **Commande client :**
@@ -31,15 +52,30 @@ Content-Length: 441
 ```
 → `Connection closed by foreign host.`
 
-**Observation :** HEAD retourne uniquement les en-têtes, sans le corps.  
-**Qui ferme la connexion ?** Le serveur (HTTP/1.0 ferme après chaque réponse).
+**Observation :** HEAD retourne uniquement les en-têtes, sans le corps. Le `Content-Length: 441` indique la taille du corps qui aurait été envoyé par un GET, mais aucun octet de corps n'est transmis.
 
 ### Test 1b — Requête GET
 
 **Réponse du serveur :** en-têtes + corps HTML (listing du répertoire, 441 octets).  
 Le serveur ferme aussi la connexion après l'envoi.
 
-### Chronogramme TCP (test 1 — HEAD, port 8000)
+### Tests visuels — client_http (client C programmatique)
+
+Le client C (`client_http`) effectue les mêmes requêtes de façon automatisée. On observe le même comportement que telnet mais sans saisie manuelle.
+
+**HEAD /message.txt :**
+
+![Test HEAD avec client_http](Client/screenshots/image-1.png)
+
+Seuls les en-têtes sont reçus (154 octets) — `Content-Length: 574` indique la taille du corps mais HEAD ne l'envoie pas.
+
+**GET /message.txt :**
+
+![Test GET avec client_http](Client/screenshots/image.png)
+
+Le corps complet est reçu (728 octets = 154 octets d'en-têtes + 574 octets de corps Lorem Ipsum).
+
+### Chronogramme tcpdump (HEAD, port 8000)
 
 ```
 Client (port 47986)                     Serveur (port 8000)
@@ -69,7 +105,16 @@ Client (port 47986)                     Serveur (port 8000)
 20:28:10.436267 IP localhost.8000 > localhost.47986: Flags [.], ack 38
 ```
 
-**Conclusion :** C'est le **serveur** qui initie la fermeture en TCP (`FIN` vient du port 8000). En HTTP/1.0, le serveur ferme systématiquement après avoir répondu.
+### Qui ferme la connexion ? Quand ?
+
+C'est le **serveur HTTP** qui initie la fermeture, immédiatement après avoir envoyé la réponse complète. La fermeture TCP se fait en **4 étapes** :
+
+1. **Serveur → Client** : `FIN` — le serveur n'a plus rien à envoyer
+2. **Client → Serveur** : `ACK` — le client accuse réception du FIN
+3. **Client → Serveur** : `FIN` — le client ferme sa propre moitié
+4. **Serveur → Client** : `ACK` — confirmation finale
+
+> En HTTP/1.0, la connexion est fermée après chaque requête/réponse. En HTTP/1.1, le serveur peut la maintenir ouverte (`Connection: keep-alive`) pour plusieurs échanges, mais dans notre cas le serveur ferme dès la fin de la réponse.
 
 ---
 
@@ -92,6 +137,19 @@ Client (port 47986)                     Serveur (port 8000)
 | `[F.]` | FIN+ACK — fermeture de connexion      |
 | `[FP.]`| FIN+PSH — données + fermeture (fusionné) |
 
+### Comparaison telnet vs client C programmatique
+
+En refaisant la capture avec `telnet` à la place du programme C, on observe **exactement le même chronogramme TCP/HTTP**.
+
+| Critère                  | Client C (`client_http`)              | `telnet`                               |
+|--------------------------|---------------------------------------|----------------------------------------|
+| Port source              | Port éphémère aléatoire               | Port éphémère aléatoire (différent)    |
+| Délai avant requête HTTP | Quasi-nul (`send()` immédiat)         | Plusieurs secondes (saisie manuelle)   |
+| Envoi de la requête      | Un seul segment TCP                   | Peut fragmenter si on tape lentement   |
+| Protocole TCP/HTTP       | Identique                             | Identique                              |
+
+`telnet` est simplement un **client TCP générique** : il ouvre une socket TCP, puis transmet tout ce que l'utilisateur tape octet par octet. Le programme C fait exactement la même chose via `send()`. Le protocole réseau sous-jacent est **strictement identique** dans les deux cas — même handshake, même échange HTTP, même fermeture FIN/ACK. La seule différence est que notre programme envoie la requête en un seul appel `send()`, alors que `telnet` peut la fragmenter si on tape lentement.
+
 ---
 
 ## Partie 3 — Serveur TCP séquentiel (`server_tcp.c`)
@@ -109,6 +167,23 @@ main()
 ```
 
 **Limitation :** un seul client à la fois. Le deuxième client attend dans la file `listen()` pendant les 60 secondes.
+
+### Servir plusieurs clients — file d'attente et saturation (BACKLOG)
+
+**Peut-on servir plusieurs clients simultanément ?**  
+Non. Le serveur séquentiel bloque 60 secondes dans `handle_client()` avant de retourner à `accept()`. Pendant ce temps, les autres clients attendent dans la **file de connexions pendantes** de `listen()` dont la taille est limitée par `BACKLOG = 10`.
+
+```
+Client 1 ──────────────── servi (60s) ──────────────────>
+Client 2               [file listen()] ─── attend ───────> servi à t+60s
+Client 3               [file listen()] ─── attend ───────>           servi à t+120s
+...
+Client 10              [file listen()] ─── attend ───────>
+Client 11              ECONNREFUSED ← file pleine, refusé immédiatement
+```
+
+**Que se passe-t-il si on lance un client supplémentaire quand la file est pleine ?**  
+Le noyau refuse la connexion directement au niveau TCP sans que le programme serveur n'intervienne. Le client reçoit l'erreur **`ECONNREFUSED`** et son `connect()` échoue immédiatement. Cette limitation est la motivation principale de la partie 5 : le serveur concurrent via `fork()` vide la file quasi instantanément en déléguant chaque client à un fils, rendant la saturation de la file pratiquement impossible.
 
 ### Test 2 — TCP avec sleep(1)
 
@@ -189,6 +264,33 @@ Serveur                          Client
 
 **Qui ferme la connexion TCP ?** Le **serveur** : après l'envoi de "Au revoir", `close(client_fd)` envoie un `FIN`.
 
+### Que se passe-t-il si on débranche le câble réseau ?
+
+Ce test n'a pas pu être réalisé en loopback (même machine, pas de câble physique), mais le comportement TCP est le suivant :
+
+**Câble débranché :**
+
+```
+Programme              Noyau (kernel)               Réseau
+    |                       |                          |
+    | send("Il est...")      |                          |
+    |──────────────────────>|                          |
+    |                       |──── segment TCP ─────────X  (perdu)
+    |                       |  pas d'ACK... attend     |
+    |                       |──── retransmission ──────X  (perdu)
+    |                       |  attend 2× plus longtemps|
+    |                       |──── retransmission ──────X  (perdu)
+    |                       |       ...                |
+    |  ETIMEDOUT (~15 min)  |                          |
+    |<──────────────────────|                          |
+```
+
+Le programme ne voit rien pendant plusieurs minutes — `send()` ne retourne pas d'erreur immédiatement. Le noyau garde une copie de chaque segment dans son **buffer de retransmission** et les réenvoie périodiquement en doublant le délai à chaque échec (200ms → 400ms → 800ms → ...). C'est le kernel qui gère cela, pas le programme. Après environ 15 minutes sans ACK, `send()` retourne finalement `-1` avec l'erreur `ETIMEDOUT` ou `EPIPE`.
+
+**Câble débranché puis rebranché rapidement :**
+
+Si le câble est rebranché avant que les retransmissions n'atteignent leur limite, TCP reprend automatiquement là où il s'était arrêté. La connexion survit sans interruption visible pour le programme — c'est précisément la garantie de fiabilité de TCP.
+
 ---
 
 ## Partie 4 — Serveur UDP (`server_udp.c`)
@@ -250,6 +352,24 @@ Client                              Serveur
 
 **Pourquoi `recvfrom()` et `sendto()` ?**  
 En UDP il n'y a pas de connexion persistante. Chaque datagramme est indépendant. `recvfrom()` remplit la structure `client_addr` avec l'IP+port de l'expéditeur, et `sendto()` l'utilise pour chaque réponse. Sans cette adresse, le serveur ne saurait pas où envoyer la réponse.
+
+### Que se passe-t-il si on débranche le câble réseau en UDP ?
+
+**Câble débranché :**  
+Les datagrammes sont **perdus silencieusement**. Contrairement à TCP, UDP ne dispose d'aucun mécanisme de retransmission. Le `sendto()` retourne immédiatement sans erreur — le programme pense avoir envoyé, mais les données n'arrivent jamais. Il n'y a aucun timeout, aucune notification d'échec.
+
+**Câble rebranché rapidement :**  
+Les datagrammes perdus pendant la coupure sont **définitivement perdus** — UDP ne les retransmet pas. L'échange reprend normalement pour les suivants, mais avec un nombre de messages manquants égal à la durée de la coupure en secondes (1 message par seconde).
+
+C'est la différence fondamentale avec TCP : UDP sacrifie la fiabilité pour la simplicité et la rapidité.
+
+### Peut-on servir plusieurs clients simultanément en UDP ?
+
+Non. Le serveur UDP est séquentiel : après avoir reçu le "Bonjour" d'un client, il entre dans une boucle de 60 `sendto()` avec `sleep(1)`. Pendant ces 60 secondes, le `recvfrom()` n'est pas appelé, donc tout datagramme d'un deuxième client est **bloqué dans le buffer de réception du noyau**.
+
+Il n'y a pas de notion de BACKLOG en UDP (pas de `listen()`), mais la taille du buffer réseau impose une limite similaire. Si trop de datagrammes arrivent sans être lus, les plus anciens sont écrasés.
+
+Contrairement à TCP où le client reçoit `ECONNREFUSED` immédiatement quand la file est pleine, en UDP le deuxième client **ne reçoit aucun signal d'attente** — ses datagrammes sont simplement mis en attente ou perdus sans notification.
 
 ---
 
