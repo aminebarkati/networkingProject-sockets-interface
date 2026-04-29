@@ -1,0 +1,362 @@
+================================THE SERVER===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/server$ cd ~/Documents/projects/networkingProject-sockets-interface/server
+sed -i 's/        sleep(1);/        \/\/ sleep(1);/' server_tcp.c
+make server_tcp
+gcc -Wall -Wextra -g -o server_tcp server_tcp.c
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/server$ ./server_tcp
+Serveur TCP en attente sur le port 8080...
+Connexion de 127.0.0.1:45850
+Client dit : Bonjour
+
+================================THE CLIENT===================================
+dragoula@dragoula-cave:~/Documents/projects/networkingProject-sockets-interface/Client$ cd ~/Documents/projects/networkingProject-sockets-interface/Client
+./client_tcp
+=== Client TCP ===
+
+[OK] Connecté à 127.0.0.1:8080
+
+[Envoyé] Bonjour
+
+--- Messages du serveur ---
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Au revoir
+
+--- Fin de l'échange ---
+recv() appelé 19 fois (TCP peut fusionner plusieurs messages)
+
+================================THE TCPDUMP===================================
+dragoula@dragoula-cave:~$ sudo tcpdump -i lo -A tcp port 8080
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on lo, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+21:28:37.758986 IP localhost.45850 > localhost.http-alt: Flags [S], seq 3448480057, win 65495, options [mss 65495,sackOK,TS val 3058371009 ecr 0,nop,wscale 10], length 0
+E..<b.@.@..9...............9.........0.........
+.K	........
+
+21:28:37.759014 IP localhost.http-alt > localhost.45850: Flags [S.], seq 3800042032, ack 3448480058, win 65483, options [mss 65495,sackOK,TS val 3058371009 ecr 3058371009,nop,wscale 10], length 0
+E..<..@.@.<...............
+0...:.....0.........
+.K	..K	....
+
+21:28:37.759038 IP localhost.45850 > localhost.http-alt: Flags [.], ack 1, win 64, options [nop,nop,TS val 3058371009 ecr 3058371009], length 0
+E..4b.@.@..@...............:..
+1...@.(.....
+.K	..K	.
+21:28:37.759110 IP localhost.45850 > localhost.http-alt: Flags [P.], seq 1:9, ack 1, win 64, options [nop,nop,TS val 3058371009 ecr 3058371009], length 8: HTTP
+E..<b.@.@..7...............:..
+1...@.0.....
+.K	..K	.Bonjour
+
+21:28:37.759125 IP localhost.http-alt > localhost.45850: Flags [.], ack 9, win 64, options [nop,nop,TS val 3058371009 ecr 3058371009], length 0
+E..4..@.@.................
+1...B...@.(.....
+.K	..K	.
+21:28:37.759374 IP localhost.http-alt > localhost.45850: Flags [P.], seq 1:19, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371009], length 18: HTTP
+E..F..@.@.................
+1...B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759410 IP localhost.45850 > localhost.http-alt: Flags [.], ack 19, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..>...............B..
+C...@.(.....
+.K	..K	.
+21:28:37.759453 IP localhost.http-alt > localhost.45850: Flags [P.], seq 19:37, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@.................
+C...B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759480 IP localhost.45850 > localhost.http-alt: Flags [.], ack 37, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..=...............B..
+U...@.(.....
+.K	..K	.
+21:28:37.759500 IP localhost.http-alt > localhost.45850: Flags [P.], seq 37:91, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 54: HTTP
+E..j..@.@.................
+U...B...@.^.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759511 IP localhost.45850 > localhost.http-alt: Flags [.], ack 91, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..<...............B..
+....@.(.....
+.K	..K	.
+21:28:37.759520 IP localhost.http-alt > localhost.45850: Flags [P.], seq 91:127, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@.................
+....B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759529 IP localhost.45850 > localhost.http-alt: Flags [.], ack 127, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..;...............B..
+....@.(.....
+.K	..K	.
+21:28:37.759537 IP localhost.http-alt > localhost.45850: Flags [P.], seq 127:163, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@.................
+....B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759545 IP localhost.45850 > localhost.http-alt: Flags [.], ack 163, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..:...............B..
+....@.(.....
+.K	..K	.
+21:28:37.759552 IP localhost.http-alt > localhost.45850: Flags [P.], seq 163:199, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@.................
+....B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759560 IP localhost.45850 > localhost.http-alt: Flags [.], ack 199, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..9...............B..
+....@.(.....
+.K	..K	.
+21:28:37.759568 IP localhost.http-alt > localhost.45850: Flags [P.], seq 199:235, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@.................
+....B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759575 IP localhost.45850 > localhost.http-alt: Flags [.], ack 235, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..8...............B.......@.(.....
+.K	..K	.
+21:28:37.759584 IP localhost.http-alt > localhost.45850: Flags [P.], seq 235:271, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@......................B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759591 IP localhost.45850 > localhost.http-alt: Flags [.], ack 271, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..7...............B...?...@.(.....
+.K	..K	.
+21:28:37.759599 IP localhost.http-alt > localhost.45850: Flags [P.], seq 271:307, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@..................?...B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759608 IP localhost.45850 > localhost.http-alt: Flags [.], ack 307, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..6...............B...c...@.(.....
+.K	..K	.
+21:28:37.759617 IP localhost.http-alt > localhost.45850: Flags [P.], seq 307:343, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@..................c...B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759624 IP localhost.45850 > localhost.http-alt: Flags [.], ack 343, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..5...............B.......@.(.....
+.K	..K	.
+21:28:37.759632 IP localhost.http-alt > localhost.45850: Flags [P.], seq 343:361, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759638 IP localhost.45850 > localhost.http-alt: Flags [.], ack 361, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..4...............B.......@.(.....
+.K	..K	.
+21:28:37.759655 IP localhost.http-alt > localhost.45850: Flags [P.], seq 361:397, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 36: HTTP
+E..X..@.@......................B...@.L.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759666 IP localhost.45850 > localhost.http-alt: Flags [.], ack 397, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..3...............B.......@.(.....
+.K	..K	.
+21:28:37.759691 IP localhost.http-alt > localhost.45850: Flags [P.], seq 397:415, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759701 IP localhost.45850 > localhost.http-alt: Flags [.], ack 415, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..2...............B.......@.(.....
+.K	..K	.
+21:28:37.759724 IP localhost.http-alt > localhost.45850: Flags [P.], seq 415:433, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759735 IP localhost.45850 > localhost.http-alt: Flags [.], ack 433, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..1...............B.......@.(.....
+.K	..K	.
+21:28:37.759757 IP localhost.http-alt > localhost.45850: Flags [P.], seq 433:451, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759767 IP localhost.45850 > localhost.http-alt: Flags [.], ack 451, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..0...............B.......@.(.....
+.K	..K	.
+21:28:37.759789 IP localhost.http-alt > localhost.45850: Flags [P.], seq 451:469, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759799 IP localhost.45850 > localhost.http-alt: Flags [.], ack 469, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@../...............B.......@.(.....
+.K	..K	.
+21:28:37.759820 IP localhost.http-alt > localhost.45850: Flags [P.], seq 469:487, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759841 IP localhost.45850 > localhost.http-alt: Flags [.], ack 487, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..................B.......@.(.....
+.K	..K	.
+21:28:37.759854 IP localhost.http-alt > localhost.45850: Flags [P.], seq 487:505, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759876 IP localhost.45850 > localhost.http-alt: Flags [.], ack 505, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..-...............B...)...@.(.....
+.K	..K	.
+21:28:37.759887 IP localhost.http-alt > localhost.45850: Flags [P.], seq 505:577, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@..................)...B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759906 IP localhost.45850 > localhost.http-alt: Flags [.], ack 577, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..,...............B...q...@.(.....
+.K	..K	.
+21:28:37.759920 IP localhost.http-alt > localhost.45850: Flags [P.], seq 577:649, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@..................q...B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.759940 IP localhost.45850 > localhost.http-alt: Flags [.], ack 649, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..+...............B.......@.(.....
+.K	..K	.
+21:28:37.759951 IP localhost.http-alt > localhost.45850: Flags [P.], seq 649:667, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.759974 IP localhost.45850 > localhost.http-alt: Flags [.], ack 667, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..*...............B.......@.(.....
+.K	..K	.
+21:28:37.759983 IP localhost.http-alt > localhost.45850: Flags [P.], seq 667:739, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@......................B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760001 IP localhost.45850 > localhost.http-alt: Flags [.], ack 739, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..)...............B.......@.(.....
+.K	..K	.
+21:28:37.760011 IP localhost.http-alt > localhost.45850: Flags [P.], seq 739:793, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 54: HTTP
+E..j..@.@......................B...@.^.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760032 IP localhost.45850 > localhost.http-alt: Flags [.], ack 793, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..(...............B...I...@.(.....
+.K	..K	.
+21:28:37.760048 IP localhost.http-alt > localhost.45850: Flags [P.], seq 793:865, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@..................I...B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760069 IP localhost.45850 > localhost.http-alt: Flags [.], ack 865, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..'...............B.......@.(.....
+.K	..K	.
+21:28:37.760080 IP localhost.http-alt > localhost.45850: Flags [P.], seq 865:883, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 18: HTTP
+E..F..@.@......................B...@.:.....
+.K	..K	.Il est 21:28:37 !
+
+21:28:37.760104 IP localhost.45850 > localhost.http-alt: Flags [.], ack 883, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..&...............B.......@.(.....
+.K	..K	.
+21:28:37.760114 IP localhost.http-alt > localhost.45850: Flags [P.], seq 883:955, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@..}...................B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760134 IP localhost.45850 > localhost.http-alt: Flags [.], ack 955, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..%...............B.......@.(.....
+.K	..K	.
+21:28:37.760145 IP localhost.http-alt > localhost.45850: Flags [P.], seq 955:1009, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 54: HTTP
+E..j..@.@......................B...@.^.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760167 IP localhost.45850 > localhost.http-alt: Flags [.], ack 1009, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..$...............B...!...@.(.....
+.K	..K	.
+21:28:37.760178 IP localhost.http-alt > localhost.45850: Flags [P.], seq 1009:1081, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 72: HTTP
+E..|..@.@..{...............!...B...@.p.....
+.K	..K	.Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+Il est 21:28:37 !
+
+21:28:37.760195 IP localhost.http-alt > localhost.45850: Flags [FP.], seq 1081:1091, ack 9, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 10: HTTP
+E..>..@.@..................i...B...@.2.....
+.K	..K	.Au revoir
+
+21:28:37.760200 IP localhost.45850 > localhost.http-alt: Flags [.], ack 1081, win 64, options [nop,nop,TS val 3058371010 ecr 3058371010], length 0
+E..4b.@.@..#...............B...i...@.(.....
+.K	..K	.
+21:28:37.760296 IP localhost.45850 > localhost.http-alt: Flags [F.], seq 9, ack 1092, win 64, options [nop,nop,TS val 3058371011 ecr 3058371010], length 0
+E..4b.@.@.."...............B...t...@.(.....
+.K	..K	.
+21:28:37.760345 IP localhost.http-alt > localhost.45850: Flags [.], ack 10, win 64, options [nop,nop,TS val 3058371011 ecr 3058371011], length 0
+E..4..@.@..................t...C...@.(.....
+.K	..K	.

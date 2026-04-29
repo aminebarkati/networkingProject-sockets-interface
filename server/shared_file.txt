@@ -1,0 +1,3 @@
+Ceci est le fichier partagé du serveur.
+Il est servi par le Service 3 (port 8082).
+Vous pouvez modifier son contenu librement.

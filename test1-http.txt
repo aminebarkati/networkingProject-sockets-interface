@@ -1,0 +1,197 @@
+================================THE SERVER===================================
+dragoula@dragoula-cave:~$ cd ~/Documents/projects/networkingProject-sockets-interface
+python3 -m http.server 8000
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+127.0.0.1 - - [29/Apr/2026 20:28:10] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [29/Apr/2026 20:29:25] "GET / HTTP/1.1" 200 -
+
+================================THE CLIENT===================================
+dragoula@dragoula-cave:~$ telnet 127.0.0.1 8000
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+HEAD / HTTP/1.1
+Host: localhost
+
+HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/3.12.3
+Date: Wed, 29 Apr 2026 19:28:10 GMT
+Content-type: text/html; charset=utf-8
+Content-Length: 441
+
+Connection closed by foreign host.
+dragoula@dragoula-cave:~$ telnet 127.0.0.1 8000
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+GET / HTTP/1.1
+Host: localhost
+
+HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/3.12.3
+Date: Wed, 29 Apr 2026 19:29:25 GMT
+Content-type: text/html; charset=utf-8
+Content-Length: 441
+
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".git/">.git/</a></li>
+<li><a href=".gitignore">.gitignore</a></li>
+<li><a href="Client/">Client/</a></li>
+<li><a href="GUIDE_TESTS.md">GUIDE_TESTS.md</a></li>
+<li><a href="README.md">README.md</a></li>
+<li><a href="server/">server/</a></li>
+</ul>
+<hr>
+</body>
+</html>
+Connection closed by foreign host.
+
+================================THE TCPDUMP===================================
+dragoula@dragoula-cave:~$ sudo tcpdump -i lo -A tcp port 8000
+[sudo] password for dragoula: 
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on lo, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+20:27:47.447645 IP localhost.47986 > localhost.8000: Flags [S], seq 3012740848, win 65495, options [mss 65495,sackOK,TS val 3054720698 ecr 0,nop,wscale 10], length 0
+E..<p.@.@............r.@.............0.........
+..V........
+
+20:27:47.447679 IP localhost.8000 > localhost.47986: Flags [S.], seq 185757018, ack 3012740849, win 65483, options [mss 65495,sackOK,TS val 3054720698 ecr 3054720698,nop,wscale 10], length 0
+E..<..@.@.<..........@.r..mZ.........0.........
+..V...V....
+
+20:27:47.447703 IP localhost.47986 > localhost.8000: Flags [.], ack 1, win 64, options [nop,nop,TS val 3054720698 ecr 3054720698], length 0
+E..4p.@.@............r.@......m[...@.(.....
+..V...V.
+20:28:09.539421 IP localhost.47986 > localhost.8000: Flags [P.], seq 1:18, ack 1, win 64, options [nop,nop,TS val 3054742790 ecr 3054720698], length 17
+E..Ep.@.@............r.@......m[...@.9.....
+......V.HEAD / HTTP/1.1
+
+20:28:09.539451 IP localhost.8000 > localhost.47986: Flags [.], ack 18, win 64, options [nop,nop,TS val 3054742790 ecr 3054742790], length 0
+E..4..@.@............@.r..m[.......@.(.....
+........
+20:28:09.940277 IP localhost.47986 > localhost.8000: Flags [P.], seq 18:35, ack 1, win 64, options [nop,nop,TS val 3054743191 ecr 3054742790], length 17
+E..Ep.@.@............r.@......m[...@.9.....
+........Host: localhost
+
+20:28:09.940304 IP localhost.8000 > localhost.47986: Flags [.], ack 35, win 64, options [nop,nop,TS val 3054743191 ecr 3054743191], length 0
+E..4..@.@............@.r..m[.......@.(.....
+........
+20:28:10.434865 IP localhost.47986 > localhost.8000: Flags [P.], seq 35:37, ack 1, win 64, options [nop,nop,TS val 3054743685 ecr 3054743191], length 2
+E..6p.@.@............r.@......m[...@.*.....
+........
+
+20:28:10.434891 IP localhost.8000 > localhost.47986: Flags [.], ack 37, win 64, options [nop,nop,TS val 3054743685 ecr 3054743685], length 0
+E..4..@.@............@.r..m[.......@.(.....
+........
+20:28:10.435959 IP localhost.8000 > localhost.47986: Flags [P.], seq 1:156, ack 37, win 64, options [nop,nop,TS val 3054743686 ecr 3054743685], length 155
+E.....@.@..R.........@.r..m[.......@.......
+........HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/3.12.3
+Date: Wed, 29 Apr 2026 19:28:10 GMT
+Content-type: text/html; charset=utf-8
+Content-Length: 441
+
+
+20:28:10.435987 IP localhost.47986 > localhost.8000: Flags [.], ack 156, win 64, options [nop,nop,TS val 3054743686 ecr 3054743686], length 0
+E..4p.@.@............r.@......m....@.(.....
+........
+20:28:10.436081 IP localhost.8000 > localhost.47986: Flags [F.], seq 156, ack 37, win 64, options [nop,nop,TS val 3054743686 ecr 3054743686], length 0
+E..4..@.@............@.r..m........@.(.....
+........
+20:28:10.436186 IP localhost.47986 > localhost.8000: Flags [F.], seq 37, ack 157, win 64, options [nop,nop,TS val 3054743686 ecr 3054743686], length 0
+E..4p.@.@............r.@......m....@.(.....
+........
+20:28:10.436267 IP localhost.8000 > localhost.47986: Flags [.], ack 38, win 64, options [nop,nop,TS val 3054743686 ecr 3054743686], length 0
+E..4..@.@............@.r..m........@.(.....
+........
+20:29:19.841121 IP localhost.48420 > localhost.8000: Flags [S], seq 3390130632, win 65495, options [mss 65495,sackOK,TS val 3054813091 ecr 0,nop,wscale 10], length 0
+E..<-e@.@..U.........$.@..I..........0.........
+...........
+
+20:29:19.841148 IP localhost.8000 > localhost.48420: Flags [S.], seq 819575474, ack 3390130633, win 65483, options [mss 65495,sackOK,TS val 3054813091 ecr 3054813091,nop,wscale 10], length 0
+E..<..@.@.<..........@.$0.....I......0.........
+...........
+
+20:29:19.841173 IP localhost.48420 > localhost.8000: Flags [.], ack 1, win 64, options [nop,nop,TS val 3054813091 ecr 3054813091], length 0
+E..4-f@.@..\.........$.@..I.0......@.(.....
+........
+20:29:24.518574 IP localhost.48420 > localhost.8000: Flags [P.], seq 1:17, ack 1, win 64, options [nop,nop,TS val 3054817769 ecr 3054813091], length 16
+E..D-g@.@..K.........$.@..I.0......@.8.....
+........GET / HTTP/1.1
+
+20:29:24.518600 IP localhost.8000 > localhost.48420: Flags [.], ack 17, win 64, options [nop,nop,TS val 3054817769 ecr 3054817769], length 0
+E..4..@.@............@.$0.....I....@.(.....
+........
+20:29:24.518623 IP localhost.48420 > localhost.8000: Flags [P.], seq 17:34, ack 1, win 64, options [nop,nop,TS val 3054817769 ecr 3054817769], length 17
+E..E-h@.@..I.........$.@..I.0......@.9.....
+........Host: localhost
+
+20:29:24.518630 IP localhost.8000 > localhost.48420: Flags [.], ack 34, win 64, options [nop,nop,TS val 3054817769 ecr 3054817769], length 0
+E..4..@.@............@.$0.....I....@.(.....
+........
+20:29:25.721688 IP localhost.48420 > localhost.8000: Flags [P.], seq 34:36, ack 1, win 64, options [nop,nop,TS val 3054818972 ecr 3054817769], length 2
+E..6-i@.@..W.........$.@..I.0......@.*.....
+........
+
+20:29:25.721722 IP localhost.8000 > localhost.48420: Flags [.], ack 36, win 64, options [nop,nop,TS val 3054818972 ecr 3054818972], length 0
+E..4..@.@............@.$0.....I....@.(.....
+........
+20:29:25.722771 IP localhost.8000 > localhost.48420: Flags [P.], seq 1:156, ack 36, win 64, options [nop,nop,TS val 3054818973 ecr 3054818972], length 155
+E.....@.@..2.........@.$0.....I....@.......
+........HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/3.12.3
+Date: Wed, 29 Apr 2026 19:29:25 GMT
+Content-type: text/html; charset=utf-8
+Content-Length: 441
+
+
+20:29:25.722814 IP localhost.48420 > localhost.8000: Flags [.], ack 156, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 0
+E..4-j@.@..X.........$.@..I.0..N...@.(.....
+........
+20:29:25.722885 IP localhost.8000 > localhost.48420: Flags [P.], seq 156:597, ack 36, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 441
+E.....@.@............@.$0..N..I....@.......
+........<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".git/">.git/</a></li>
+<li><a href=".gitignore">.gitignore</a></li>
+<li><a href="Client/">Client/</a></li>
+<li><a href="GUIDE_TESTS.md">GUIDE_TESTS.md</a></li>
+<li><a href="README.md">README.md</a></li>
+<li><a href="server/">server/</a></li>
+</ul>
+<hr>
+</body>
+</html>
+
+20:29:25.722896 IP localhost.48420 > localhost.8000: Flags [.], ack 597, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 0
+E..4-k@.@..W.........$.@..I.0......@.(.....
+........
+20:29:25.722977 IP localhost.8000 > localhost.48420: Flags [F.], seq 597, ack 36, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 0
+E..4..@.@............@.$0.....I....@.(.....
+........
+20:29:25.723051 IP localhost.48420 > localhost.8000: Flags [F.], seq 36, ack 598, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 0
+E..4-l@.@..V.........$.@..I.0......@.(.....
+........
+20:29:25.723101 IP localhost.8000 > localhost.48420: Flags [.], ack 37, win 64, options [nop,nop,TS val 3054818973 ecr 3054818973], length 0
+E..4..@.@............@.$0.....I....@.(.....
+........
+^C
+30 packets captured
+60 packets received by filter
