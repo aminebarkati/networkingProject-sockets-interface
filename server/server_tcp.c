@@ -33,7 +33,7 @@ static void handle_client(int client_fd, struct sockaddr_in *client_addr)
         strftime(msg, sizeof(msg), "Il est %H:%M:%S !\n", localtime(&t));
         /* If send fails, client likely disconnected: stop early. */
         if (send(client_fd, msg, strlen(msg), 0) < 0) break;
-        sleep(1);
+        // sleep(1);
     }
 
     send(client_fd, "Au revoir\n", 10, 0);
