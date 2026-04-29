@@ -1,20 +1,25 @@
 CC      = gcc
 CFLAGS  = -Wall -Wextra -g
+OUTPUT_DIR = output
 
-TARGETS = server_tcp server_udp server_concurrent
+BINARIES = server_tcp server_udp server_concurrent
+TARGETS = $(addprefix $(OUTPUT_DIR)/,$(BINARIES))
 
 all: $(TARGETS)
 
-server_tcp: server_tcp.c
-	$(CC) $(CFLAGS) -o $@ $^
+$(OUTPUT_DIR):
+	@mkdir -p $(OUTPUT_DIR)
 
-server_udp: server_udp.c
-	$(CC) $(CFLAGS) -o $@ $^
+$(OUTPUT_DIR)/%: %.c | $(OUTPUT_DIR)
+	$(CC) $(CFLAGS) -o $@ $<
 
-server_concurrent: server_concurrent.c
-	$(CC) $(CFLAGS) -o $@ $^
+server_tcp: $(OUTPUT_DIR)/server_tcp
+
+server_udp: $(OUTPUT_DIR)/server_udp
+
+server_concurrent: $(OUTPUT_DIR)/server_concurrent
 
 clean:
 	rm -f $(TARGETS)
 
-.PHONY: all clean
+.PHONY: all clean $(BINARIES)

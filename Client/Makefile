@@ -11,15 +11,18 @@
 
 CC      = gcc
 CFLAGS  = -Wall -Wextra -g    # -Wall : tous les warnings, -g : debug gdb
+OUTPUT_DIR = output
 
-TARGETS = client_http    \
-          client_tcp      \
-          client_udp      \
-          client_service1 \
-          client_service2 \
-          client_service3
+BINARIES = client_http    \
+           client_tcp      \
+           client_udp      \
+           client_service1 \
+           client_service2 \
+           client_service3
 
-.PHONY: all clean test
+TARGETS = $(addprefix $(OUTPUT_DIR)/,$(BINARIES))
+
+.PHONY: all clean test $(BINARIES)
 
 all: $(TARGETS)
 	@echo ""
@@ -27,30 +30,30 @@ all: $(TARGETS)
 	@for t in $(TARGETS); do echo "  ./$$t"; done
 	@echo ""
 
-client_http:    client_http.c
+$(OUTPUT_DIR):
+	@mkdir -p $(OUTPUT_DIR)
+
+$(OUTPUT_DIR)/%: %.c | $(OUTPUT_DIR)
 	$(CC) $(CFLAGS) -o $@ $<
 
-client_tcp:     client_tcp.c
-	$(CC) $(CFLAGS) -o $@ $<
+client_http:    $(OUTPUT_DIR)/client_http
 
-client_udp:     client_udp.c
-	$(CC) $(CFLAGS) -o $@ $<
+client_tcp:     $(OUTPUT_DIR)/client_tcp
 
-client_service1: client_service1.c
-	$(CC) $(CFLAGS) -o $@ $<
+client_udp:     $(OUTPUT_DIR)/client_udp
 
-client_service2: client_service2.c
-	$(CC) $(CFLAGS) -o $@ $<
+client_service1: $(OUTPUT_DIR)/client_service1
 
-client_service3: client_service3.c
-	$(CC) $(CFLAGS) -o $@ $<
+client_service2: $(OUTPUT_DIR)/client_service2
+
+client_service3: $(OUTPUT_DIR)/client_service3
 
 test: all
 	@chmod +x test_parallele.sh
-	@./test_parallele.sh
+	@cd $(OUTPUT_DIR) && ../test_parallele.sh
 
 clean:
 	rm -f $(TARGETS)
-	rm -f fichier_recu_*.txt
-	rm -rf logs_test/
+	rm -f $(OUTPUT_DIR)/fichier_recu_*.txt
+	rm -rf $(OUTPUT_DIR)/logs_test/
 	@echo "Nettoyage terminé."

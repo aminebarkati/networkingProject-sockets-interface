@@ -1,3 +1,6 @@
+/* Nécessaire pour CLOCK_MONOTONIC et clock_gettime() (POSIX.1b) */
+#define _POSIX_C_SOURCE 199309L
+
 /*
  * =============================================================================
  * client_tcp.c — Client TCP (mode connecté)
@@ -26,7 +29,6 @@
  * =============================================================================
  */
 
-#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,6 +48,7 @@
 
 int  creer_socket_tcp(void);
 void connecter_serveur(int fd, const char *ip, int port);
+void envoyer_message(int fd, const char *message);
 int  recevoir_message(int fd, char *buf, int taille);
 void afficher_statistiques(int nb_messages, double duree_sec);
 
@@ -71,6 +74,9 @@ int main(void) {
     connecter_serveur(socket_fd, SERVER_IP, SERVER_PORT);
     printf("[OK] Connecté à %s:%d\n\n", SERVER_IP, SERVER_PORT);
 
+    /* Étape 3 : Envoyer un message d'initialisation au serveur */
+    envoyer_message(socket_fd, "BONJOUR\n");
+
     clock_gettime(CLOCK_MONOTONIC, &t_debut);
 
     /* Étape 3 : Boucle de réception des messages */
@@ -84,7 +90,7 @@ int main(void) {
             /* n  < 0 : erreur réseau                                */
             if (n == 0) {
                 printf("\n[INFO] Connexion fermée par le serveur.\n");
-            } else {    
+            } else {
                 perror("Erreur recv()");
             }
             break;
@@ -166,7 +172,46 @@ void connecter_serveur(int fd, const char *ip, int port) {
 }
 
 /*
- * recevoir_message()
+ * envoyer_message()
+ * -----------------
+ * Envoie un message texte au serveur via send().
+ *
+ * Gestion robuste : send() peut n'envoyer qu'une partie des données
+ * (si le buffer noyau est plein), donc on boucle jusqu'à ce que
+ * tous les octets soient partis — comportement correct en TCP.
+ *
+ * Paramètres :
+ *   fd      : file descriptor de la socket connectée
+ *   message : chaîne à envoyer (terminée par '\0')
+ *
+ * Exemple d'utilisation :
+ *   envoyer_message(socket_fd, "BONJOUR\n");
+ *   envoyer_message(socket_fd, "GET_HEURE\n");
+ */
+void envoyer_message(int fd, const char *message) {
+    int total   = strlen(message);  /* Nombre total d'octets à envoyer  */
+    int envoyes = 0;                /* Nombre d'octets déjà envoyés     */
+    int n;
+
+    while (envoyes < total) {
+        n = send(fd, message + envoyes, total - envoyes, 0);
+
+        if (n == -1) {
+            perror("Erreur send() dans envoyer_message()");
+            exit(EXIT_FAILURE);
+        }
+
+        envoyes += n;
+    }
+
+    printf("[ENVOI] \"%.*s\" (%d octet%s)\n",
+           total - 1,        /* -1 pour ne pas afficher le \n final */
+           message,
+           total,
+           total > 1 ? "s" : "");
+}
+
+/*
  * ------------------
  * Wrapper autour de recv() qui ajoute le '\0' terminal et retourne
  * le nombre d'octets reçus (0 = connexion fermée, -1 = erreur).

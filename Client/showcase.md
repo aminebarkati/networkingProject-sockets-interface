@@ -1,5 +1,8 @@
+# Partie 2.1 — Client HTTP test avec telnet
+
 ![alt text](screenshots/image-1.png)
 ![alt text](screenshots/image.png)
+
 # Partie 2.2 — Client HTTP en mode connecté
 
 ## Comment s'établit la connexion ?
@@ -42,10 +45,10 @@ La fermeture TCP se fait en **4 étapes** (4-way teardown) :
 
 ## Quels ports sont utilisés ?
 
-| Côté | Port | Type |
-|------|------|------|
-| Serveur | **80** | Port bien connu HTTP (fixe) |
-| Client | **port éphémère** (ex. 54321) | Assigné aléatoirement par le kernel dans la plage 49152–65535 |
+| Côté    | Port                          | Type                                                          |
+| ------- | ----------------------------- | ------------------------------------------------------------- |
+| Serveur | **80**                        | Port bien connu HTTP (fixe)                                   |
+| Client  | **port éphémère** (ex. 54321) | Assigné aléatoirement par le kernel dans la plage 49152–65535 |
 
 ---
 
@@ -57,12 +60,12 @@ En refaisant la capture Wireshark avec `telnet` à la place de notre programme C
 
 ### Différences observées
 
-| Critère | Notre client C | `telnet` |
-|---------|---------------|----------|
-| Port source | Port éphémère aléatoire | Port éphémère aléatoire (différent) |
+| Critère                  | Notre client C                | `telnet`                             |
+| ------------------------ | ----------------------------- | ------------------------------------ |
+| Port source              | Port éphémère aléatoire       | Port éphémère aléatoire (différent)  |
 | Délai avant requête HTTP | Quasi-nul (`send()` immédiat) | Plusieurs secondes (saisie manuelle) |
-| Envoi de la requête | Un seul segment TCP | Peut envoyer caractère par caractère |
-| Protocole TCP/HTTP | Identique | Identique |
+| Envoi de la requête      | Un seul segment TCP           | Peut envoyer caractère par caractère |
+| Protocole TCP/HTTP       | Identique                     | Identique                            |
 
 ### Explication
 

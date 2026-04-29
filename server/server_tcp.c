@@ -65,7 +65,7 @@ static void handle_client(int client_fd, struct sockaddr_in *client_addr)
     printf("Client dit : %s", buf);
 
     /* Boucle 60 fois avec une pause d'1 seconde entre chaque envoi         */
-    for (int i = 0; i < 60; i++) {
+    for (int i = 0; i < 10; i++) {
 
         time_t t = time(NULL);  /* time() retourne le nombre de secondes    */
                                 /* écoulées depuis le 1er janvier 1970      */
