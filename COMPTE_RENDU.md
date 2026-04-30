@@ -1,7 +1,7 @@
 # Compte Rendu — TP Réseaux : Programmation par Sockets
 
-**Binôme :** AbdelAziz Mseddi (serveur) + binôme (client)  
-**Date :** 29 avril 2026  
+**Binôme :** AbdelAziz Mseddi (serveur) + Mohamed Amine Barkati (client)  
+**Date :** 30 avril 2026  
 **Plateforme de test :** loopback (127.0.0.1), Linux
 
 ---
