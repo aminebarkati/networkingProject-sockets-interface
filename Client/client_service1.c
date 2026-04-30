@@ -1,3 +1,6 @@
+/* Nécessaire pour CLOCK_MONOTONIC et clock_gettime() (POSIX.1b) */
+#define _POSIX_C_SOURCE 199309L
+
 /*
  * =============================================================================
  * client_service1.c — Client pour le Service 1 : réception de l'heure
@@ -34,6 +37,12 @@
 #define SERVICE1_PORT 8080
 #define BUF_SIZE    256
 
+/* ─── Prototype ───────────────────────────────────────────────────────────── */
+
+void envoyer_message(int fd, const char *message);
+
+/* ─── Main ────────────────────────────────────────────────────────────────── */
+
 int main(void) {
     int  fd;
     char buf[BUF_SIZE];
@@ -60,6 +69,10 @@ int main(void) {
     }
 
     printf("[PID %d] Connecté. Réception en cours...\n", getpid());
+
+    /* Envoyer un message d'initialisation au serveur */
+    envoyer_message(fd, "BONJOUR\n");
+
     clock_gettime(CLOCK_MONOTONIC, &t0);
 
     /* Recevoir les messages */
@@ -79,4 +92,43 @@ int main(void) {
 
     close(fd);
     return EXIT_SUCCESS;
+}
+
+/* ─── Implémentation ──────────────────────────────────────────────────────── */
+
+/*
+ * envoyer_message()
+ * -----------------
+ * Envoie un message texte au serveur via send().
+ *
+ * Boucle robuste : send() peut n'envoyer qu'une partie des données
+ * si le buffer noyau est plein. La boucle garantit que tous les octets
+ * sont transmis avant de retourner.
+ *
+ * Paramètres :
+ *   fd      : file descriptor de la socket connectée
+ *   message : chaîne à envoyer (terminée par '\0')
+ */
+void envoyer_message(int fd, const char *message) {
+    int total   = strlen(message);
+    int envoyes = 0;
+    int n;
+
+    while (envoyes < total) {
+        n = send(fd, message + envoyes, total - envoyes, 0);
+
+        if (n == -1) {
+            perror("Erreur send() dans envoyer_message()");
+            exit(EXIT_FAILURE);
+        }
+
+        envoyes += n;
+    }
+
+    printf("[PID %d][ENVOI] \"%.*s\" (%d octet%s)\n",
+           getpid(),
+           total - 1,   /* -1 pour ne pas afficher le \n final */
+           message,
+           total,
+           total > 1 ? "s" : "");
 }

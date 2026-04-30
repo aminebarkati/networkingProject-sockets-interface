@@ -34,32 +34,72 @@ NC='\033[0m' # No Color
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 NB_CLIENTS_PAR_SERVICE=3   # Nombre de clients lancés par service
-LOG_DIR="./logs_test"      # Répertoire pour les logs des clients
+LOG_DIR=""
+
+# Optional environment flags for testing:
+#  DETECT_ONLY=1     -> only detect binary locations and print them, then exit
+#  SKIP_PORT_CHECK=1 -> skip server port/network availability checks
+
+# Determine where the client binaries live. Priority order:
+#  1) current working directory (./client_service1)
+#  2) ./output (relative to cwd)
+#  3) script directory
+#  4) script_dir/output
+detect_bin_dir() {
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    candidates=("$PWD" "$PWD/output" "$script_dir" "$script_dir/output")
+    for d in "${candidates[@]}"; do
+        if [ -x "$d/client_service1" ] && [ -x "$d/client_service2" ] && [ -x "$d/client_service3" ]; then
+            BIN_DIR="$d"
+            return 0
+        fi
+    done
+    # Fallback: prefer ./output if it contains any binaries, or current dir
+    if [ -e "./output/client_service1" ] || [ -e "./output/client_service2" ] || [ -e "./output/client_service3" ]; then
+        BIN_DIR="./output"
+    else
+        BIN_DIR="."
+    fi
+}
+
+detect_bin_dir
+LOG_DIR="${LOG_DIR:-$BIN_DIR/logs_test}"
 
 # ─── Vérifications préliminaires ──────────────────────────────────────────────
 echo -e "${BLUE}=============================================${NC}"
 echo -e "${BLUE}   TEST PARALLÈLE — Serveur Concurrent       ${NC}"
 echo -e "${BLUE}=============================================${NC}\n"
 
-# Vérifier que les binaires existent
+# Vérifier que les binaires existent in the detected BIN_DIR
 for bin in client_service1 client_service2 client_service3; do
-    if [ ! -f "./$bin" ]; then
-        echo -e "${RED}[ERREUR] Binaire '$bin' introuvable.${NC}"
+    if [ ! -x "$BIN_DIR/$bin" ]; then
+        echo -e "${RED}[ERREUR] Binaire '$BIN_DIR/$bin' introuvable ou non exécutable.${NC}"
         echo "         Lancez d'abord : make  (ou compilez manuellement)"
         exit 1
     fi
 done
 
-echo -e "${GREEN}[OK] Tous les binaires trouvés.${NC}"
+echo -e "${GREEN}[OK] Tous les binaires trouvés dans : $BIN_DIR ${NC}"
+
+# If requested, only detect and report paths, then exit (useful for CI/dry-run)
+if [ "${DETECT_ONLY}" = "1" ]; then
+    echo "BIN_DIR=$BIN_DIR"
+    echo "LOG_DIR=$LOG_DIR"
+    exit 0
+fi
 
 # Vérifier que le serveur écoute (test rapide avec nc)
-for port in 8080 8081 8082; do
-    if ! nc -z 127.0.0.1 $port 2>/dev/null; then
-        echo -e "${RED}[ERREUR] Rien ne répond sur le port $port.${NC}"
-        echo "         Démarrez d'abord le serveur : ./server_concurrent"
-        exit 1
-    fi
-done
+if [ -z "${SKIP_PORT_CHECK}" ]; then
+    for port in 8080 8081 8082; do
+        if ! nc -z 127.0.0.1 $port 2>/dev/null; then
+            echo -e "${RED}[ERREUR] Rien ne répond sur le port $port.${NC}"
+            echo "         Démarrez d'abord le serveur : ./server_concurrent"
+            exit 1
+        fi
+    done
+else
+    echo -e "${YELLOW}[INFO] SKIP_PORT_CHECK set - skipping server port checks${NC}"
+fi
 
 echo -e "${GREEN}[OK] Serveur détecté sur les ports 8080, 8081, 8082.${NC}\n"
 
@@ -74,7 +114,7 @@ echo ""
 PIDS_S1=()
 for i in $(seq 1 $NB_CLIENTS_PAR_SERVICE); do
     LOG_FILE="$LOG_DIR/client_s1_instance${i}.log"
-    ./client_service1 > "$LOG_FILE" 2>&1 &
+    "$BIN_DIR/client_service1" > "$LOG_FILE" 2>&1 &
     PIDS_S1+=($!)
     echo -e "  ${GREEN}[LANCÉ]${NC} client_service1 instance $i — PID=${!} — log: $LOG_FILE"
 done
@@ -106,15 +146,15 @@ echo -e "${YELLOW}═══ TEST 2 : 1 client par service, tous en parallèle �
 echo "Lancement à $(date '+%H:%M:%S')..."
 echo ""
 
-./client_service1 > "$LOG_DIR/test2_s1.log" 2>&1 &
+"$BIN_DIR/client_service1" > "$LOG_DIR/test2_s1.log" 2>&1 &
 PID_T2_S1=$!
 echo -e "  ${GREEN}[LANCÉ]${NC} client_service1 — PID=$PID_T2_S1"
 
-./client_service2 > "$LOG_DIR/test2_s2.log" 2>&1 &
+"$BIN_DIR/client_service2" > "$LOG_DIR/test2_s2.log" 2>&1 &
 PID_T2_S2=$!
 echo -e "  ${GREEN}[LANCÉ]${NC} client_service2 — PID=$PID_T2_S2"
 
-./client_service3 > "$LOG_DIR/test2_s3.log" 2>&1 &
+"$BIN_DIR/client_service3" > "$LOG_DIR/test2_s3.log" 2>&1 &
 PID_T2_S3=$!
 echo -e "  ${GREEN}[LANCÉ]${NC} client_service3 — PID=$PID_T2_S3"
 
@@ -142,7 +182,7 @@ echo "  Résultat Service 2 (nb processus) :"
 cat "$LOG_DIR/test2_s2.log" | grep "processus"
 
 # Vérifier que le fichier Service 3 a été créé
-FICHIER_RECU=$(ls fichier_recu_*.txt 2>/dev/null | head -1)
+FICHIER_RECU=$(ls "$BIN_DIR"/fichier_recu_*.txt 2>/dev/null | head -1)
 if [ -n "$FICHIER_RECU" ]; then
     TAILLE=$(wc -c < "$FICHIER_RECU")
     echo "  Fichier Service 3 reçu : $FICHIER_RECU ($TAILLE octets)"

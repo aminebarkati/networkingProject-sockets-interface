@@ -31,14 +31,14 @@ cd Client && ./test_parallel.sh
 
 ## Documentation
 
-Voir [server/ARCHITECTURE.md](server/ARCHITECTURE.md) pour les explications détaillées :
+Voir [COMPTE_RENDU.md](COMPTE_RENDU.md) pour les explications détaillées :
 architecture, code annoté, chronogrammes des échanges, commandes de test.
 
 ## Phases du TP
 
-| Phase | Fichiers | Description |
-|-------|----------|-------------|
-| 2 | `Client/client_http.c` | Client HTTP en mode connecté |
-| 3 | `server/server_tcp.c` + `Client/client_tcp.c` | Transfert TCP, comptage de messages |
-| 4 | `server/server_udp.c` + `Client/client_udp.c` | Transfert UDP, comparaison TCP/UDP |
-| 5 | `server/server_concurrent.c` + `Client/client_service*.c` | Serveur concurrent, 3 services |
+| Phase | Fichiers                                                  | Description                         |
+| ----- | --------------------------------------------------------- | ----------------------------------- |
+| 2     | `Client/client_http.c`                                    | Client HTTP en mode connecté        |
+| 3     | `server/server_tcp.c` + `Client/client_tcp.c`             | Transfert TCP, comptage de messages |
+| 4     | `server/server_udp.c` + `Client/client_udp.c`             | Transfert UDP, comparaison TCP/UDP  |
+| 5     | `server/server_concurrent.c` + `Client/client_service*.c` | Serveur concurrent, 3 services      |
